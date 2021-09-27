@@ -31,20 +31,3 @@
 ## 安装包下载链接
 
 https://raw.githubusercontent.com/LevineHua/single-reader/main/static/single-reader%20Setup%200.0.1.exe
-
-## 运行方式
-
-``` bash
-# install dependencies
-npm install 或 yarn
-
-# serve with hot reload at localhost:9080
-npm run dev 或 yarn dev
-
-# build electron application for production
-npm run build 或 yarn build
-
-
-```
-
-

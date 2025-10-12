@@ -55,3 +55,5 @@ https://raw.githubusercontent.com/LevineHua/single-reader/main/static/single-rea
 
 5. 修改package.json，解决高版本的node运行构建问题。
 
+## v1.0.1版本安装包下载链接
+https://github.com/chentieli/single-reader/blob/branch-single/static/single-reader%20Setup%201.0.1.exe

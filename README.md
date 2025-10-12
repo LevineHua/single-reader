@@ -31,3 +31,27 @@
 ## 安装包下载链接
 
 https://raw.githubusercontent.com/LevineHua/single-reader/main/static/single-reader%20Setup%200.0.1.exe
+
+
+
+
+## update by chentieli
+首先感谢LevineHua搭建的基础功能，我在这个基础上做了一些额外的补充功能，具体新增以下内容。
+1. 新增设置界面，支持以下配置项：
+   1) 字体大小配置
+   2) 每行显示字数配置
+   3) 主界面宽度配置
+   4) 主界面高度配置
+   ![预览图](IMG/img3.png)
+
+2. 增加主界面可拖动功能，鼠标左键指向小说窗口按住即可实现拖拽至桌面的任意位置。
+   ![预览图](IMG/v1.gif)
+
+3. 小说列表中增加跳转功能。
+   ![预览图](IMG/img4.png)
+
+4. 目前本地debug调试时在快速翻页的时候会出现error弹框，目前分析是写持久化文件的插件频繁写文件导致的。暂时还没有解决。但是通过build出来的exe安装包测试，在快速翻页的时候没有错误，暂时不知道啥原因。不过可以满足基本使用需求。
+   ![预览图](IMG/img5.png)
+
+5. 修改package.json，解决高版本的node运行构建问题。
+

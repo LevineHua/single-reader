@@ -1,8 +1,8 @@
 {
   "name": "single-reader",
-  "version": "1.0.1",
+  "version": "2.0.1",
   "author": "LevineHua <32919200+LevineHua@users.noreply.github.com>",
-  "description": "给老婆开发的上班摸鱼用的单行阅读器",
+  "description": "单行阅读器",
   "license": null,
   "main": "./dist/electron/main.js",
   "scripts": {
@@ -53,13 +53,15 @@
   "dependencies": {
     "axios": "^0.18.0",
     "electron-store": "^2.0.0",
+    "jszip": "^3.10.1",
     "lowdb": "^3.0.0",
     "multispinner": "^0.2.1",
     "vue": "^2.5.16",
     "vue-electron": "^1.0.6",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1",
-    "vuex-electron": "^1.0.0"
+    "vuex-electron": "^1.0.0",
+    "xml2js": "^0.6.2"
   },
   "devDependencies": {
     "ajv": "^6.5.0",

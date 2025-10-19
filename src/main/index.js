@@ -94,18 +94,19 @@ ipcMain.on('update-window-settings', (event, settings) => {
     const width = parseInt(settings.width, 10)
     const height = parseInt(settings.height, 10)
     
-    // 验证数值范围
-    const validWidth = Math.max(200, Math.min(800, width))
-    const validHeight = Math.max(15, Math.min(50, height))
+    // 验证数值范围（更新为新的范围限制）
+    const validWidth = Math.max(100, Math.min(2000, width))
+    const validHeight = Math.max(10, Math.min(200, height))
     
-    // 重新定位窗口到屏幕底部
-    const { height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
-    const newY = screenHeight - validHeight - 7
+    // 获取窗口当前位置，保持当前位置不变
+    const currentPosition = mainWindow.getPosition()
+    const currentX = currentPosition[0]
+    const currentY = currentPosition[1]
     
-    // 使用setBounds方法一次性设置位置和大小，这个方法更可靠
+    // 使用setBounds方法一次性设置位置和大小，保持当前位置
     mainWindow.setBounds({
-      x: 0,
-      y: newY,
+      x: currentX,
+      y: currentY,
       width: validWidth,
       height: validHeight
     })
@@ -113,14 +114,6 @@ ipcMain.on('update-window-settings', (event, settings) => {
     // 强制刷新窗口以确保大小变化生效
     mainWindow.setResizable(true)
     mainWindow.setResizable(false)
-    
-    // 再次确保窗口位置正确
-    mainWindow.setBounds({
-      x: 0,
-      y: newY,
-      width: validWidth,
-      height: validHeight
-    })
   }
 })
 
@@ -137,9 +130,9 @@ let menuWindow
 function openMenuWindow () {
   menuWindow = new BrowserWindow({
     title: '菜单栏',
-    height: 350,
+    height: 500, // 增加菜单窗口高度以适应新的界面布局
     useContentSize: false,
-    width: 600,
+    width: 800, // 增加菜单窗口宽度以适应新的界面布局
     backgroundColor: '#fff',
     autoHideMenuBar: true,  // 隐藏菜单栏
     // transparent: true,

@@ -16,7 +16,7 @@ import { log } from 'util';
        @mousedown="startDrag">
     <!-- 如果鼠标不再阅读器上则显示随便放一个网站域名 -->
     <div class="preview" :style="{ fontSize: fontSize + 'px' }">
-      {{ mouseInView ? nowRead : 'fanyi.baidu.com/translate?aldtype=16047&query=&keyfrom=baidu&smartresult=dict&lang=auto2zh#en/zh/single-reader' }}
+      {{ getDisplayContent }}
       {{ book && isLastPage ? '（已读完）' : '' }}
     </div>
     <!-- {{ keyword }} -->
@@ -32,18 +32,19 @@ import { log } from 'util';
     data: () => {
       return {
         content: ``,
-        lineSize: 38, // 默认一行显示38个字
+        lineSize: 20, // 默认一行显示20个字
         fontSize: 13, // 默认字体大小
         mouseInView: false,
         menu: null,
         keyword: '',
-        lastLineSize: 38, // 记录上一次的每行字数设置
+        lastLineSize: 20, // 记录上一次的每行字数设置
         lastFontSize: 13, // 记录上一次的字体大小设置
         isDragging: false,
         dragStartX: 0,
         dragStartY: 0,
         windowStartX: 0,
-        windowStartY: 0
+        windowStartY: 0,
+        mouseControlEnabled: true // 鼠标控制开关，从设置加载
       }
     },
     mounted() {
@@ -106,6 +107,15 @@ import { log } from 'util';
         }
         
         return this.book.context.slice(start, Math.min(end, this.book.context.length))
+      },
+      // 根据鼠标控制设置决定显示内容
+      getDisplayContent() {
+        // 如果鼠标控制功能关闭，始终显示小说内容
+        if (!this.mouseControlEnabled) {
+          return this.nowRead
+        }
+        // 如果鼠标控制功能开启，根据鼠标位置决定显示内容
+        return this.mouseInView ? this.nowRead : 'fanyi.baidu.com/translate?aldtype=16047&query=&keyfrom=baidu&smartresult=dict&lang=auto2zh#en/zh/single-reader'
       }
     },
     methods: {
@@ -114,7 +124,7 @@ import { log } from 'util';
         const { key, value } = event.detail
         
         if (key === 'reader_settings') {
-          const { lineSize, fontSize } = value
+          const { lineSize, fontSize, mouseControlEnabled } = value
           
           if (lineSize && lineSize !== this.lastLineSize) {
             this.lineSize = lineSize
@@ -124,8 +134,19 @@ import { log } from 'util';
           }
           
           if (fontSize && fontSize !== this.lastFontSize) {
-            this.fontSize = fontSize
-            this.lastFontSize = fontSize
+            const validFontSize = Math.max(5, Math.min(40, fontSize))
+            this.fontSize = validFontSize
+            this.lastFontSize = validFontSize
+            // 强制更新视图
+            this.$forceUpdate()
+          }
+          
+          if (mouseControlEnabled !== undefined && mouseControlEnabled !== this.mouseControlEnabled) {
+            this.mouseControlEnabled = mouseControlEnabled
+            // 如果关闭了鼠标控制，强制显示小说内容
+            if (!mouseControlEnabled) {
+              this.mouseInView = true
+            }
             // 强制更新视图
             this.$forceUpdate()
           }
@@ -194,6 +215,7 @@ import { log } from 'util';
       checkSettingsChange() {
         const savedLineSize = localStorage.getItem('reader_lineSize')
         const savedFontSize = localStorage.getItem('reader_fontSize')
+        const savedMouseControl = localStorage.getItem('reader_mouseControlEnabled')
         
         if (savedLineSize) {
           const newLineSize = parseInt(savedLineSize)
@@ -207,9 +229,23 @@ import { log } from 'util';
         
         if (savedFontSize) {
           const newFontSize = parseInt(savedFontSize)
-          if (newFontSize !== this.lastFontSize) {
-            this.fontSize = newFontSize
-            this.lastFontSize = newFontSize
+          const validFontSize = Math.max(5, Math.min(40, newFontSize))
+          if (validFontSize !== this.lastFontSize) {
+            this.fontSize = validFontSize
+            this.lastFontSize = validFontSize
+            // 强制更新视图
+            this.$forceUpdate()
+          }
+        }
+        
+        if (savedMouseControl) {
+          const newMouseControl = savedMouseControl === 'true'
+          if (newMouseControl !== this.mouseControlEnabled) {
+            this.mouseControlEnabled = newMouseControl
+            // 如果关闭了鼠标控制，强制显示小说内容
+            if (!newMouseControl) {
+              this.mouseInView = true
+            }
             // 强制更新视图
             this.$forceUpdate()
           }
@@ -225,8 +261,18 @@ import { log } from 'util';
         
         const savedFontSize = localStorage.getItem('reader_fontSize')
         if (savedFontSize) {
-          this.fontSize = parseInt(savedFontSize)
+          const fontSize = parseInt(savedFontSize)
+          this.fontSize = Math.max(5, Math.min(40, fontSize))
           this.lastFontSize = this.fontSize
+        }
+        
+        const savedMouseControl = localStorage.getItem('reader_mouseControlEnabled')
+        if (savedMouseControl) {
+          this.mouseControlEnabled = savedMouseControl === 'true'
+          // 如果关闭了鼠标控制，强制显示小说内容
+          if (!this.mouseControlEnabled) {
+            this.mouseInView = true
+          }
         }
       },
       // 发送窗口设置给主进程
@@ -245,6 +291,11 @@ import { log } from 'util';
       },
       // 鼠标是否放置在阅读器中
       mouseIn(value) {
+        // 如果鼠标控制功能关闭，不处理鼠标事件
+        if (!this.mouseControlEnabled) {
+          this.mouseInView = true
+          return
+        }
         this.mouseInView = value
       },
       // 按键
@@ -260,6 +311,14 @@ import { log } from 'util';
             // 下一页
             this.nextPage()
             break;
+          case 33: // PageUp键
+            // 快速向前翻10页
+            this.fastPrevPage()
+            break;
+          case 34: // PageDown键
+            // 快速向后翻10页
+            this.fastNextPage()
+            break;
         }
       },
       prevPage() {
@@ -270,6 +329,28 @@ import { log } from 'util';
       nextPage() {
         if (this.book && !this.isLastPage) {
           this.$store.dispatch('nextPage')
+        }
+      },
+      // 快速向后翻10页
+      fastNextPage() {
+        if (this.book && !this.isLastPage) {
+          const targetPage = Math.min(this.book.page + 10, this.totalPages)
+          this.$store.dispatch('jumpToPage', {
+            title: this.book.title,
+            page: targetPage,
+            lineSize: this.lineSize
+          })
+        }
+      },
+      // 快速向前翻10页
+      fastPrevPage() {
+        if (this.book && this.book.page > 1) {
+          const targetPage = Math.max(this.book.page - 10, 1)
+          this.$store.dispatch('jumpToPage', {
+            title: this.book.title,
+            page: targetPage,
+            lineSize: this.lineSize
+          })
         }
       },
       // 初始化菜单

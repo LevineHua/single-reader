@@ -20,7 +20,7 @@
   - 左右方向键（←上一页，→下一页）逐页翻页
   - PageUp/PageDown键快速翻页（每次翻10页）
  
-## update by chentieli
+## update by chentieli （2025年10月19日）
 首先感谢LevineHua搭建的基础功能，我在这个基础上做了一些额外的补充功能、修复崩溃的错误，最新版本支持了epub文件导入，以及按照章节跳转的功能。
 1. 新增设置界面，支持以下配置项：
    1) 伪装开关
@@ -46,5 +46,5 @@
 5. 修改package.json，解决高版本的node运行构建问题。
 
 
-## v1.0.1版本安装包下载链接
-https://github.com/chentieli/single-reader/blob/branch-single/static/single-reader%20Setup%201.0.1.exe
+## v2.0.1版本安装包下载链接
+https://github.com/chentieli/single-reader/blob/epub/static/single-reader%20Setup%202.0.1.zip

@@ -1,6 +1,6 @@
 # 超隐蔽的单行阅读器
 
-> 给女朋友开发的上班摸鱼用的单行阅读器
+> 给老婆开发的上班摸鱼用的单行阅读器
 
 ## 背景
 
@@ -17,17 +17,34 @@
 2. 只有鼠标放置在阅读器上才会显示小说正文，当鼠标离开时会显示一串地址，已达到混淆的效果
 
 3. 电脑的“←”、“→”键可以进行上一页下一页操作
+  - 左右方向键（←上一页，→下一页）逐页翻页
+  - PageUp/PageDown键快速翻页（每次翻10页）
+ 
+## update by chentieli
+首先感谢LevineHua搭建的基础功能，我在这个基础上做了一些额外的补充功能、修复崩溃的错误，最新版本支持了epub文件导入，以及按照章节跳转的功能。
+1. 新增设置界面，支持以下配置项：
+   1) 伪装开关
+   2) 字体大小配置
+   3) 每行显示字数配置
+   4) 主界面宽度配置
+   5) 主界面高度配置
+   6) 阅读界面坐标可自由拖动
 
-4. 右键阅读区可打开菜单，可进行基础的增加删除小说操作
+   ![预览图](IMG/img6.png)
 
-   ![预览图](IMG/img2.png)
+2. 增加主界面可拖动功能，鼠标左键指向小说窗口按住即可实现拖拽至桌面的任意位置。
 
-   
+   ![预览图](IMG/v1.gif)
 
-## 预览效果
+3. 新增epub格式文件支持，支持解析epub文件的章节目录。并针对epub支持章节跳转功能。
+   ![预览图](IMG/preview1.gif)
 
-   ![预览图](IMG/preview.gif)
+4. 目前本地debug调试时在快速翻页的时候会出现error弹框，分析是写持久化文件的插件频繁写文件导致的。最新版本已经解决快速翻页导致的错误问题。
 
-## 安装包下载链接
+   ![预览图](IMG/img5.png)
 
-https://raw.githubusercontent.com/LevineHua/single-reader/main/static/single-reader%20Setup%200.0.1.exe
+5. 修改package.json，解决高版本的node运行构建问题。
+
+
+## v1.0.1版本安装包下载链接
+https://github.com/chentieli/single-reader/blob/branch-single/static/single-reader%20Setup%201.0.1.exe

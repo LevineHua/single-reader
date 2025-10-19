@@ -25,13 +25,23 @@ const winURL = process.env.NODE_ENV === 'development'
 function createWindow () {
   // 获取屏幕高度
   const { height } = screen.getPrimaryDisplay().workAreaSize
+  
+  // 默认窗口设置
+  const defaultWidth = 324 // 38 * 8 + 20 = 324
+  const defaultHeight = 15
+  const defaultLineSize = 21
+  
+  // 初始化窗口时使用默认值
+  let windowWidth = defaultWidth
+  let windowHeight = defaultHeight
+  
   /**
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    height: 10,
+    height: windowHeight,
     useContentSize: false,
-    width: 500,
+    width: windowWidth,
     backgroundColor: '#DEE1E6',
     x: 0,
     y: height - 22,
@@ -41,7 +51,7 @@ function createWindow () {
     minimizable: false,
     maximizable: false, 
     frame: false, // 无边框
-    resizable: false, // 是否可调整大小
+    resizable: false, // 不可调整大小
     // alwaysOnTop: true,  // 是否永远在别的窗口上面
     // opacity: 0.8,
     webPreferences: {
@@ -51,6 +61,12 @@ function createWindow () {
   })
 
   mainWindow.loadURL(winURL)
+  
+  // 当页面加载完成后，通过IPC获取保存的设置并调整窗口大小
+  mainWindow.webContents.once('did-finish-load', () => {
+    mainWindow.webContents.send('request-window-settings')
+  })
+  
   mainWindow.on('closed', () => {
     mainWindow = null
     app.quit()
@@ -71,14 +87,52 @@ app.on('activate', () => {
   }
 })
 
+// 监听窗口设置更新
+ipcMain.on('update-window-settings', (event, settings) => {
+  if (mainWindow) {
+    // 确保宽度和高度是数字类型
+    const width = parseInt(settings.width, 10)
+    const height = parseInt(settings.height, 10)
+    
+    // 验证数值范围（更新为新的范围限制）
+    const validWidth = Math.max(100, Math.min(2000, width))
+    const validHeight = Math.max(10, Math.min(200, height))
+    
+    // 获取窗口当前位置，保持当前位置不变
+    const currentPosition = mainWindow.getPosition()
+    const currentX = currentPosition[0]
+    const currentY = currentPosition[1]
+    
+    // 使用setBounds方法一次性设置位置和大小，保持当前位置
+    mainWindow.setBounds({
+      x: currentX,
+      y: currentY,
+      width: validWidth,
+      height: validHeight
+    })
+    
+    // 强制刷新窗口以确保大小变化生效
+    mainWindow.setResizable(true)
+    mainWindow.setResizable(false)
+  }
+})
+
+// 监听窗口位置移动
+ipcMain.on('move-window', (event, position) => {
+  if (mainWindow) {
+    const { x, y } = position
+    mainWindow.setPosition(x, y)
+  }
+})
+
 // 定义菜单窗体
 let menuWindow
 function openMenuWindow () {
   menuWindow = new BrowserWindow({
     title: '菜单栏',
-    height: 350,
+    height: 500, // 增加菜单窗口高度以适应新的界面布局
     useContentSize: false,
-    width: 600,
+    width: 800, // 增加菜单窗口宽度以适应新的界面布局
     backgroundColor: '#fff',
     autoHideMenuBar: true,  // 隐藏菜单栏
     // transparent: true,
@@ -113,7 +167,7 @@ ipcMain.on('closeMenuWindow', e => {
  *
  * Uncomment the following code below and install `electron-updater` to
  * support auto updating. Code Signing with a valid certificate is required.
- * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-electron-builder.html#auto-updating
+ * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
  */
 
 /*
